@@ -20,10 +20,12 @@ try {
 
 const files = [
 	'./package.json',
+	'./package-lock.json',
 	'./.sandstorm/sandstorm-pkgdef.capnp',
 	'./.travis/snap.sh',
 	'./.circleci/snap.sh',
 	'./.circleci/update-releases.sh',
+	'./.circleci/setartname.sh',
 	'./.docker/Dockerfile',
 	'./packages/rocketchat-lib/rocketchat.info'
 ];
