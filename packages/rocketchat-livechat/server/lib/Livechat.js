@@ -33,6 +33,23 @@ RocketChat.Livechat = {
 			return RocketChat.models.Users.findOnlineAgents();
 		}
 	},
+	getRequiredDepartment(onlineRequired = true) {
+		const departments = RocketChat.models.LivechatDepartment.findEnabledWithAgents();
+		if (departments.count() > 0) {
+			return departments.fetch().find((dept) => {
+				if (dept.showOnRegistration) {
+					if (onlineRequired) {
+						const onlineAgents = RocketChat.models.LivechatDepartmentAgents.getOnlineForDepartment(dept._id);
+						if (onlineAgents.count() > 0) {
+							return true;
+						}
+					} else {
+						return true;
+					}
+				}
+			});
+		}
+	},
 	getRoom(guest, message, roomInfo) {
 		let room = RocketChat.models.Rooms.findOneById(message.rid);
 		let newRoom = false;
@@ -45,13 +62,10 @@ RocketChat.Livechat = {
 		if (room == null) {
 			// if no department selected verify if there is at least one active and pick the first
 			if (!guest.department) {
-				const departments = RocketChat.models.LivechatDepartment.findEnabledWithAgents();
-				if (departments.count() > 0) {
-					departments.forEach((dept) => {
-						if (!guest.department && dept.showOnRegistration) {
-							guest.department = dept._id;
-						}
-					});
+				const department = this.getRequiredDepartment();
+
+				if (department) {
+					guest.department = department._id;
 				}
 			}
 
